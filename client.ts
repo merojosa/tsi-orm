@@ -1,7 +1,12 @@
 import { schema } from "./mysql-schema-test";
 
 type TypeScriptOrmClient<T> = {
-  [key in keyof T]: { findUnique(...args: any[]): T[key] };
+  [key in keyof T]: {
+    findUnique(args: {
+      select?: Partial<Record<keyof T[key], boolean>>;
+      where: T[key];
+    }): T[key];
+  };
 };
 
 const createClient = <T>(schema: T): TypeScriptOrmClient<T> => {
@@ -19,4 +24,9 @@ const createClient = <T>(schema: T): TypeScriptOrmClient<T> => {
 
 const tsClient = createClient(schema);
 
-const { author } = tsClient.Post.findUnique();
+const result = tsClient.User.findUnique({
+  where: {
+    email: { length: 1, type: "int" },
+    password: { length: 1, type: "date" },
+  },
+});
