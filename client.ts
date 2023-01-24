@@ -20,7 +20,7 @@ const createClient = <T extends object>(schema: T): TypeScriptOrmClient<T> => {
       findUnique: `${key}_findUnique`,
     };
     return acc;
-  }, {} as UncapitalizeObjectKeys<Record<keyof T, { findAll: string; findUnique: string }>>);
+  }, {} as TypeScriptOrmClient<T>);
 
   return object;
 };
