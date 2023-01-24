@@ -27,8 +27,14 @@ type MySqlSchema<TableNames extends string> = Record<
   MySqlEntity<TableNames>
 >;
 
-export const schema: MySqlSchema<"User" | "Post"> = {
-  User: {
+export const schema = {
+  ["identity_manager"]: {
+    id: {
+      type: "int",
+      length: 1,
+    },
+  },
+  ["User"]: {
     email: { type: "int", length: 10 },
     password: { type: "date", length: 20 },
   },
@@ -39,4 +45,4 @@ export const schema: MySqlSchema<"User" | "Post"> = {
       relatedColumns: ["email", "password"],
     },
   },
-};
+} satisfies MySqlSchema<"User" | "Post" | "identity_manager">;
