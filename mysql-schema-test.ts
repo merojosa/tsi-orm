@@ -4,7 +4,7 @@
  * Constraints
  */
 
-type MySqlDataTypes = "int" | "varchar" | "date";
+export type MySqlDataTypes = "int" | "varchar" | "date";
 
 type MySqlColumn<TableNames> =
   | {
@@ -37,6 +37,11 @@ export const schema = {
   ["User"]: {
     email: { type: "int", length: 10 },
     password: { type: "date", length: 20 },
+    login: {
+      type: "relation",
+      relatedTable: "identity_manager",
+      relatedColumns: ["test", "test2"],
+    },
   },
   Post: {
     author: {
