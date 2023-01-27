@@ -3,7 +3,7 @@ import { MySqlDataTypes, schema } from "./mysql-schema-test";
 /**
  * If the object has a `type` property with primitives, stop the recursion.
  */
-type BooleanConvertion<
+type BooleanConverter<
   Schema extends object,
   Table extends keyof Schema
 > = Partial<{
@@ -12,14 +12,14 @@ type BooleanConvertion<
   }
     ? boolean
     : Schema[Table][Column] extends { relatedTable: keyof Schema }
-    ? BooleanConvertion<Schema, Schema[Table][Column]["relatedTable"]>
+    ? BooleanConverter<Schema, Schema[Table][Column]["relatedTable"]>
     : never;
 }>;
 
 type SelectFields<
   Schema extends object,
   Table extends keyof Schema
-> = BooleanConvertion<Schema, Table>;
+> = BooleanConverter<Schema, Table>;
 
 type TypeScriptOrmClient<Schema extends object> = {
   [Table in keyof Schema]: {
