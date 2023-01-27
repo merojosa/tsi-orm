@@ -3,22 +3,26 @@ import { MySqlDataTypes, schema } from "./mysql-schema-test";
 /**
  * If the object has a `type` property with primitives, stop the recursion.
  */
-type RecursiveConvertion<V, O> = {
-  [K in keyof O]: O[K] extends { type: MySqlDataTypes }
-    ? V
-    : RecursiveConvertion<V, O[K]>;
+type BooleanConvertion<Tables extends object, Column extends keyof Tables> = {
+  [key in keyof Tables[Column]]: Tables[Column][key] extends {
+    type: MySqlDataTypes;
+  }
+    ? boolean
+    : Tables[Column][key] extends { relatedTable: keyof Tables }
+    ? Partial<BooleanConvertion<Tables, Tables[Column][key]["relatedTable"]>>
+    : never;
 };
 
-type SelectFields<TData extends object, key extends keyof TData> = Partial<
-  RecursiveConvertion<boolean, TData[key]>
+type SelectFields<Tables extends object, Column extends keyof Tables> = Partial<
+  BooleanConvertion<Tables, Column>
 >;
 
-type TypeScriptOrmClient<TData extends object> = {
-  [key in keyof TData]: {
+type TypeScriptOrmClient<Tables extends object> = {
+  [Column in keyof Tables]: {
     findUnique(args: {
-      select?: SelectFields<TData, key>;
-      where: TData[key];
-    }): TData[key];
+      select?: SelectFields<Tables, Column>;
+      where: Tables[Column];
+    }): Tables[Column];
   };
 };
 
@@ -41,11 +45,13 @@ const tsClient = createClient(schema);
 
 const result = tsClient.User.findUnique({
   select: {
-    password: true,
+    email: true,
     login: {
-      type: "relation",
-      relatedColumns: ["jjeeje"],
-      relatedTable: "identity_manager",
+      account: true,
+      identity_tests: {
+        key: true,
+        test: true,
+      },
     },
   },
   where: {

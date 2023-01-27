@@ -33,6 +33,15 @@ export const schema = {
       type: "int",
       length: 1,
     },
+    account: {
+      length: 1,
+      type: "date",
+    },
+    identity_tests: {
+      type: "relation",
+      relatedColumns: ["jijijij"],
+      relatedTable: "identity_test",
+    },
   },
   ["User"]: {
     email: { type: "int", length: 10 },
@@ -50,4 +59,14 @@ export const schema = {
       relatedColumns: ["email", "password"],
     },
   },
-} satisfies MySqlSchema<"User" | "Post" | "identity_manager">;
+  identity_test: {
+    test: {
+      type: "int",
+      length: 20,
+    },
+    key: {
+      type: "varchar",
+      length: 24,
+    },
+  },
+} satisfies MySqlSchema<"User" | "Post" | "identity_manager" | "identity_test">;
