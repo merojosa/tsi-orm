@@ -3,32 +3,36 @@ import { MySqlDataTypes, schema } from "./mysql-schema-test";
 /**
  * If the object has a `type` property with primitives, stop the recursion.
  */
-type BooleanConvertion<Tables extends object, Column extends keyof Tables> = {
-  [key in keyof Tables[Column]]: Tables[Column][key] extends {
+type BooleanConvertion<
+  Schema extends object,
+  Table extends keyof Schema
+> = Partial<{
+  [Column in keyof Schema[Table]]: Schema[Table][Column] extends {
     type: MySqlDataTypes;
   }
     ? boolean
-    : Tables[Column][key] extends { relatedTable: keyof Tables }
-    ? Partial<BooleanConvertion<Tables, Tables[Column][key]["relatedTable"]>>
+    : Schema[Table][Column] extends { relatedTable: keyof Schema }
+    ? BooleanConvertion<Schema, Schema[Table][Column]["relatedTable"]>
     : never;
-};
+}>;
 
-type SelectFields<Tables extends object, Column extends keyof Tables> = Partial<
-  BooleanConvertion<Tables, Column>
->;
+type SelectFields<
+  Schema extends object,
+  Table extends keyof Schema
+> = BooleanConvertion<Schema, Table>;
 
-type TypeScriptOrmClient<Tables extends object> = {
-  [Column in keyof Tables]: {
+type TypeScriptOrmClient<Schema extends object> = {
+  [Table in keyof Schema]: {
     findUnique(args: {
-      select?: SelectFields<Tables, Column>;
-      where: Tables[Column];
-    }): Tables[Column];
+      select?: SelectFields<Schema, Table>;
+      where: Schema[Table];
+    }): Schema[Table];
   };
 };
 
-const createClient = <TData extends object>(
-  schema: TData
-): TypeScriptOrmClient<TData> => {
+const createClient = <Schema extends object>(
+  schema: Schema
+): TypeScriptOrmClient<Schema> => {
   const keys = Object.keys(schema);
 
   const object = keys.reduce((acc, key) => {
@@ -36,7 +40,7 @@ const createClient = <TData extends object>(
       findUnique: (args) => console.log(`Console ${key}_findUnique`, args),
     };
     return acc;
-  }, {} as TypeScriptOrmClient<TData>);
+  }, {} as TypeScriptOrmClient<Schema>);
 
   return object;
 };
@@ -45,9 +49,7 @@ const tsClient = createClient(schema);
 
 const result = tsClient.User.findUnique({
   select: {
-    email: true,
     login: {
-      account: true,
       identity_tests: {
         key: true,
         test: true,
