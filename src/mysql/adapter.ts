@@ -1,9 +1,3 @@
-/*
- * TODO:
- * Triggers
- * Constraints
- */
-
 export type MySqlDataTypes = "int" | "varchar" | "date";
 
 type InferRelation<
