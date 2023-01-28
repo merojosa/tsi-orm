@@ -6,7 +6,17 @@
 
 export type MySqlDataTypes = "int" | "varchar" | "date";
 
-type MySqlColumn<TableNames> =
+type InferRelation<
+  Schema extends object,
+  TData
+> = TData extends infer RelatedTableVariable extends keyof Schema
+  ? {
+      relatedTable: RelatedTableVariable;
+      relatedColumns: Array<keyof Schema[RelatedTableVariable]>;
+    }
+  : boolean;
+
+type MySqlColumn<Schema extends object, Table extends keyof Schema> =
   | {
       type: MySqlDataTypes;
       length: number;
@@ -14,20 +24,24 @@ type MySqlColumn<TableNames> =
       defaultValue?: string;
       unique?: boolean;
     }
-  | {
+  | ({
       type: "relation";
-      relatedTable: TableNames;
-      relatedColumns: string[]; // TODO: The columns for the chosen table
-    };
+    } & InferRelation<Schema, keyof Schema>);
 
-type MySqlEntity<TableNames> = Record<string, MySqlColumn<TableNames>>;
-
-type MySqlSchema<TableNames extends string> = Record<
-  TableNames,
-  MySqlEntity<TableNames>
+type MySqlTable<Schema extends object, Table extends keyof Schema> = Record<
+  string,
+  MySqlColumn<Schema, Table>
 >;
 
-export const schema = {
+type MySqlSchema<Schema extends object> = {
+  [Table in keyof Schema]: MySqlTable<Schema, Table>;
+};
+
+const declareSchema = <TData extends MySqlSchema<TData>>(schema: TData) => {
+  return schema satisfies MySqlSchema<TData>;
+};
+
+export const schema = declareSchema({
   ["identity_manager"]: {
     id: {
       type: "int",
@@ -39,8 +53,8 @@ export const schema = {
     },
     identity_tests: {
       type: "relation",
-      relatedColumns: ["jijijij"],
       relatedTable: "identity_test",
+      relatedColumns: ["key"],
     },
   },
   ["User"]: {
@@ -49,7 +63,7 @@ export const schema = {
     login: {
       type: "relation",
       relatedTable: "identity_manager",
-      relatedColumns: ["test", "test2"],
+      relatedColumns: ["account", "id"],
     },
   },
   Post: {
@@ -69,4 +83,4 @@ export const schema = {
       length: 24,
     },
   },
-} satisfies MySqlSchema<"User" | "Post" | "identity_manager" | "identity_test">;
+});

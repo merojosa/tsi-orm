@@ -49,6 +49,7 @@ const tsClient = createClient(schema);
 
 const result = tsClient.User.findUnique({
   select: {
+    email: true,
     login: {
       identity_tests: {
         key: true,
