@@ -1,4 +1,4 @@
-import { MySqlDataTypes } from "./adapter";
+import { MySqlDataTypes } from "../schema/adapter";
 
 /**
  * If the object has a `type` property with primitives, stop the recursion.

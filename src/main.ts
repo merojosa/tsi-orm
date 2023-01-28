@@ -1,5 +1,5 @@
-import declareSchema from "./mysql/adapter";
-import createClient from "./mysql/client";
+import declareSchema from "./mysql/schema/adapter";
+import createClient from "./mysql/client/client";
 
 export const schema = declareSchema({
   ["identity_manager"]: {
