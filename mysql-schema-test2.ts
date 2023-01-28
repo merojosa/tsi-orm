@@ -6,7 +6,17 @@
 
 export type MySqlDataTypes = "int" | "varchar" | "date";
 
-type MySqlColumn<TableNames extends object> =
+type TestRelation<
+  Schema extends object,
+  TData
+> = TData extends infer RelatedTableVariable extends keyof Schema
+  ? {
+      relatedTable: RelatedTableVariable;
+      relatedColumns: Array<keyof Schema[RelatedTableVariable]>;
+    }
+  : boolean;
+
+type MySqlColumn<Schema extends object, Table extends keyof Schema> =
   | {
       type: MySqlDataTypes;
       length: number;
@@ -14,24 +24,52 @@ type MySqlColumn<TableNames extends object> =
       defaultValue?: string;
       unique?: boolean;
     }
-  | {
+  | ({
       type: "relation";
-      relatedTable: keyof TableNames;
-      relatedColumns: string[]; // TODO: The columns for the chosen table
-    };
+    } & TestRelation<Schema, keyof Schema>);
 
-type MySqlEntity<Schema extends object> = Record<string, MySqlColumn<Schema>>;
-
-type MySqlSchema<Schema extends object> = Readonly<
-  Record<keyof Schema, MySqlEntity<Schema>>
+type MySqlTable<Schema extends object, Table extends keyof Schema> = Record<
+  string,
+  MySqlColumn<Schema, Table>
 >;
 
-const declareSchema = <TData extends object>(
+type MySqlSchema<Schema extends object> = {
+  [Table in keyof Schema]: MySqlTable<Schema, Table>;
+};
+
+const declareSchema = <TData extends MySqlSchema<TData>>(
   schema: TData
 ): MySqlSchema<TData> => {
-  return schema as any;
+  return schema;
 };
 
 const schema = declareSchema({
-  test1: false,
+  User: {
+    email: {
+      length: 1,
+      type: "varchar",
+      defaultValue: "false",
+    },
+    password: {
+      length: 1,
+      type: "int",
+    },
+    posts: {
+      type: "relation",
+      relatedTable: "Post",
+      relatedColumns: ["id", "title"],
+    },
+  },
+  Post: {
+    id: { type: "int", length: 8, primayKey: true },
+    title: {
+      type: "varchar",
+      length: 400,
+    },
+    author: {
+      type: "relation",
+      relatedTable: "User",
+      relatedColumns: ["email"],
+    },
+  },
 });
