@@ -8,8 +8,8 @@ export type MySqlDataTypes = "int" | "varchar" | "date";
 
 type InferRelation<
   Schema extends object,
-  TData
-> = TData extends infer RelatedTableVariable extends keyof Schema
+  Tables
+> = Tables extends infer RelatedTableVariable extends keyof Schema
   ? {
       relatedTable: RelatedTableVariable;
       relatedColumns: Array<keyof Schema[RelatedTableVariable]>;
