@@ -58,12 +58,15 @@ const result = tsClient.User.findUnique({
     },
   },
   where: {
-    email: { length: 1, type: "int" },
-    password: { length: 1, type: "date" },
+    email: 1,
+    password: new Date(),
     login: {
-      relatedColumns: [],
-      relatedTable: "identity_manager",
-      type: "relation",
+      id: 1,
+      account: new Date(),
+      identity_tests: {
+        test: 1,
+        key: "ejejej",
+      },
     },
   },
 });

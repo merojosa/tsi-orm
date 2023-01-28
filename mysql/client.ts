@@ -21,11 +21,26 @@ type SelectFields<
   Table extends keyof Schema
 > = BooleanConverter<Schema, Table>;
 
+type DataTypeConverter<Schema extends object, Table extends keyof Schema> = {
+  [Column in keyof Schema[Table]]: Schema[Table][Column] extends { type: "int" }
+    ? number
+    : Schema[Table][Column] extends { type: "date" }
+    ? Date
+    : Schema[Table][Column] extends { type: "varchar" }
+    ? string
+    : Schema[Table][Column] extends {
+        type: "relation";
+        relatedTable: keyof Schema;
+      }
+    ? DataTypeConverter<Schema, Schema[Table][Column]["relatedTable"]>
+    : never;
+};
+
 type TypeScriptOrmClient<Schema extends object> = {
   [Table in keyof Schema]: {
     findUnique(args: {
       select?: SelectFields<Schema, Table>;
-      where: Schema[Table];
+      where: DataTypeConverter<Schema, Table>;
     }): Schema[Table];
   };
 };

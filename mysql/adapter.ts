@@ -34,8 +34,7 @@ type MySqlSchema<Schema extends object> = {
   [Table in keyof Schema]: MySqlTable<Schema>;
 };
 
-const declareSchema = <TData extends MySqlSchema<TData>>(schema: TData) => {
-  return schema satisfies MySqlSchema<TData>;
-};
+const declareSchema = <TData extends MySqlSchema<TData>>(schema: TData) =>
+  schema satisfies MySqlSchema<TData>;
 
 export default declareSchema;
