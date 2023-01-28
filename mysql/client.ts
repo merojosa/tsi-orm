@@ -1,4 +1,4 @@
-import { MySqlDataTypes, schema } from "./mysql-schema-test";
+import { MySqlDataTypes } from "./adapter";
 
 /**
  * If the object has a `type` property with primitives, stop the recursion.
@@ -45,25 +45,4 @@ const createClient = <Schema extends object>(
   return object;
 };
 
-const tsClient = createClient(schema);
-
-const result = tsClient.User.findUnique({
-  select: {
-    email: true,
-    login: {
-      identity_tests: {
-        key: true,
-        test: true,
-      },
-    },
-  },
-  where: {
-    email: { length: 1, type: "int" },
-    password: { length: 1, type: "date" },
-    login: {
-      relatedColumns: [],
-      relatedTable: "identity_manager",
-      type: "relation",
-    },
-  },
-});
+export default createClient;
