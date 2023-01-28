@@ -1,46 +1,11 @@
-import { MySqlDataTypes } from "./adapter";
-
-/**
- * If the object has a `type` property with primitives, stop the recursion.
- */
-type BooleanConverter<
-  Schema extends object,
-  Table extends keyof Schema
-> = Partial<{
-  [Column in keyof Schema[Table]]: Schema[Table][Column] extends {
-    type: MySqlDataTypes;
-  }
-    ? boolean
-    : Schema[Table][Column] extends { relatedTable: keyof Schema }
-    ? BooleanConverter<Schema, Schema[Table][Column]["relatedTable"]>
-    : never;
-}>;
-
-type SelectFields<
-  Schema extends object,
-  Table extends keyof Schema
-> = BooleanConverter<Schema, Table>;
-
-type DataTypeConverter<Schema extends object, Table extends keyof Schema> = {
-  [Column in keyof Schema[Table]]: Schema[Table][Column] extends { type: "int" }
-    ? number
-    : Schema[Table][Column] extends { type: "date" }
-    ? Date
-    : Schema[Table][Column] extends { type: "varchar" }
-    ? string
-    : Schema[Table][Column] extends {
-        type: "relation";
-        relatedTable: keyof Schema;
-      }
-    ? DataTypeConverter<Schema, Schema[Table][Column]["relatedTable"]>
-    : never;
-};
+import MySqlSelectFields from "./select";
+import MySqlDataTypeConverter from "./where";
 
 type TypeScriptOrmClient<Schema extends object> = {
   [Table in keyof Schema]: {
     findUnique(args: {
-      select?: SelectFields<Schema, Table>;
-      where: DataTypeConverter<Schema, Table>;
+      select?: MySqlSelectFields<Schema, Table>;
+      where: MySqlDataTypeConverter<Schema, Table>;
     }): Schema[Table];
   };
 };
