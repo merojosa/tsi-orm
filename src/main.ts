@@ -1,7 +1,6 @@
-import declareSchema from "./mysql/schema/adapter";
-import createClient from "./mysql/client/client";
+import { createMySqlClient, declareMySqlSchema } from "./mysql";
 
-export const schema = declareSchema({
+const schema = declareMySqlSchema({
   ["identity_manager"]: {
     id: {
       type: "int",
@@ -45,7 +44,7 @@ export const schema = declareSchema({
   },
 });
 
-const tsClient = createClient(schema);
+const tsClient = createMySqlClient(schema);
 
 const result = tsClient.User.findUnique({
   select: {

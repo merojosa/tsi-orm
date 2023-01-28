@@ -10,7 +10,7 @@ type MySqlTypeScriptOrmClient<Schema extends object> = {
   };
 };
 
-const createClient = <Schema extends object>(
+export const createMySqlClient = <Schema extends object>(
   schema: Schema
 ): MySqlTypeScriptOrmClient<Schema> => {
   const keys = Object.keys(schema);
@@ -24,5 +24,3 @@ const createClient = <Schema extends object>(
 
   return object;
 };
-
-export default createClient;
