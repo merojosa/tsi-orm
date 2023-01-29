@@ -1,5 +1,5 @@
-import MySqlSelectFields from "./select";
-import MySqlDataTypeConverter from "./where";
+import MySqlSelectFields from "./select.types";
+import MySqlDataTypeConverter from "./where.types";
 
 type MySqlTypeScriptOrmClient<Schema extends object> = {
   [Table in keyof Schema]: {
