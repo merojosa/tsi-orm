@@ -1,4 +1,4 @@
-import { createMySqlClient, declareMySqlSchema } from "./mysql";
+import { createMySqlClient, declareMySqlSchema } from "./src/mysql";
 
 const schema = declareMySqlSchema({
   ["identity_manager"]: {
