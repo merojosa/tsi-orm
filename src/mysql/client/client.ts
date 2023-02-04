@@ -16,10 +16,13 @@ export const createMySqlClient = <Schema extends object>(
   const keys = Object.keys(schema);
 
   const object = keys.reduce((acc, key) => {
-    acc[key] = {
-      findUnique: (args) => console.log(`Console ${key}_findUnique`, args),
+    return {
+      ...acc,
+      [key]: {
+        findUnique: (args: any) =>
+          console.log(`Console ${key}_findUnique`, args),
+      },
     };
-    return acc;
   }, {} as MySqlTypeScriptOrmClient<Schema>);
 
   return object;
