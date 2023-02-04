@@ -1,17 +1,37 @@
+import mysql, { ConnectionOptions } from "mysql2/promise";
+
 import { MySqlDataTypes, MySqlSchema, MySqlTable } from "./adapter";
 
-export const buildDatabaseFromSchema = (schema: MySqlSchema<any>) => {
+export type MySqlDbConfig = Required<
+  Pick<ConnectionOptions, "host" | "user" | "password" | "database">
+>;
+
+export const buildDatabaseFromSchema = async (
+  dbConfig: MySqlDbConfig,
+  schema: MySqlSchema<any>
+) => {
   const tables = Object.entries(schema);
 
   const createTablesInstructions = tables.map(
     ([tableName, propertiesObject]) => {
-      return `CREATE TABLE IF NOT EXISTS ${tableName} (${getColumns(
+      return `CREATE TABLE IF NOT EXISTS \`${tableName}\` (${getColumns(
         propertiesObject
       )});`;
     }
   );
 
-  console.log("BREAKPOINT tablesSql", createTablesInstructions);
+  try {
+    const errors = await createTablesFromSqlInstructions(
+      dbConfig,
+      createTablesInstructions
+    );
+
+    if (errors.length) {
+      errors.forEach(({ reason }) => console.error(reason));
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const getColumns = (tableProperties: MySqlTable<any>): string => {
@@ -21,7 +41,7 @@ const getColumns = (tableProperties: MySqlTable<any>): string => {
     (acc, [columnName, columnProperties], index) => {
       if (columnProperties.type !== "relation") {
         return acc.concat(
-          `${index !== 0 ? ", " : ""}${columnName} ${getMySqlDataType(
+          `${index !== 0 ? ", " : ""}\`${columnName}\` ${getMySqlDataType(
             columnProperties.type,
             columnProperties.length
           )}`
@@ -31,7 +51,6 @@ const getColumns = (tableProperties: MySqlTable<any>): string => {
     },
     ""
   );
-
   return concatenatedColumns;
 };
 
@@ -45,4 +64,27 @@ const getMySqlDataType = (type: MySqlDataTypes, length?: number): string => {
     case "varchar":
       return `VARCHAR${lenghtSql}`;
   }
+};
+
+const createTablesFromSqlInstructions = async (
+  dbConfig: MySqlDbConfig,
+  instructions: string[]
+) => {
+  const connection = await mysql.createConnection(dbConfig);
+
+  const promises = instructions.map((instruction) =>
+    connection.execute(instruction)
+  );
+
+  const awaitedPromises = await Promise.allSettled(promises);
+
+  const results = awaitedPromises.reduce((errors, promise) => {
+    if (promise.status === "rejected") {
+      return [...errors, { reason: promise.reason }];
+    }
+    return errors;
+  }, [] as { reason: string }[]);
+
+  await connection.end();
+  return results;
 };

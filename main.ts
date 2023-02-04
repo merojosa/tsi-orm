@@ -1,52 +1,64 @@
 import { createMySqlClient, declareMySqlSchema } from "./src/mysql";
 
-const schema = declareMySqlSchema({
-  ["identity_manager"]: {
-    id: {
-      type: "int",
-      length: 1,
-    },
-    account: {
-      length: 1,
-      type: "date",
-    },
-    identity_tests: {
-      type: "relation",
-      relatedTable: "identity_test",
-      relatedColumns: ["key"],
-    },
+const schema = declareMySqlSchema(
+  {
+    host: "",
+    user: "",
+    password: "",
+    database: "",
   },
-  ["User"]: {
-    email: { type: "int", length: 10 },
-    password: { type: "date", length: 20 },
-    login: {
-      type: "relation",
-      relatedTable: "identity_manager",
-      relatedColumns: ["account", "id"],
+  {
+    ["identity_manager"]: {
+      id: {
+        type: "int",
+        length: 1,
+      },
+      account: {
+        length: 1,
+        type: "date",
+      },
+      identity_tests: {
+        type: "relation",
+        relatedTable: "identity_test",
+        relatedColumns: ["key"],
+      },
     },
-  },
-  Post: {
-    author: {
-      type: "relation",
-      relatedTable: "User",
-      relatedColumns: ["email", "password"],
+    ["User"]: {
+      email: { type: "int", length: 10 },
+      password: { type: "date", length: 20 },
+      login: {
+        type: "relation",
+        relatedTable: "identity_manager",
+        relatedColumns: ["account", "id"],
+      },
     },
-  },
-  identity_test: {
-    test: {
-      type: "int",
-      length: 20,
+    Post: {
+      id: {
+        type: "int",
+        primaryKey: true,
+      },
+      author: {
+        type: "relation",
+        relatedTable: "User",
+        relatedColumns: ["email", "password"],
+      },
     },
-    key: {
-      type: "varchar",
-      length: 24,
+    identity_test: {
+      test: {
+        type: "int",
+        length: 20,
+      },
+      key: {
+        type: "varchar",
+        length: 24,
+      },
     },
-  },
-});
+  }
+);
 
 const tsClient = createMySqlClient(schema);
 
-const result = tsClient.User.findUnique({
+/* const result = tsClient.User.findUnique({
   select: {
     email: true,
     login: {
@@ -69,3 +81,4 @@ const result = tsClient.User.findUnique({
     },
   },
 });
+ */

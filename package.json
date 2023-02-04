@@ -19,5 +19,8 @@
   "homepage": "https://github.com/merojosa/typescript-orm#readme",
   "devDependencies": {
     "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "mysql2": "^3.1.0"
   }
 }

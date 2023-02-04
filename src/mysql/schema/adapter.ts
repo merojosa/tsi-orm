@@ -1,4 +1,4 @@
-import { buildDatabaseFromSchema } from "./builder";
+import { buildDatabaseFromSchema, MySqlDbConfig } from "./builder";
 
 export type MySqlDataTypes = "int" | "varchar" | "date";
 
@@ -33,9 +33,10 @@ export type MySqlSchema<Schema extends object> = {
   [Table in keyof Schema]: MySqlTable<Schema>;
 };
 
-export const declareMySqlSchema = <TData extends MySqlSchema<TData>>(
+export const declareMySqlSchema = async <TData extends MySqlSchema<TData>>(
+  databaseConfig: MySqlDbConfig,
   schema: TData
 ) => {
-  buildDatabaseFromSchema(schema);
+  buildDatabaseFromSchema(databaseConfig, schema);
   return schema satisfies MySqlSchema<TData>;
 };
