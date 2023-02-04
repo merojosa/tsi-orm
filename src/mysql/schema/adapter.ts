@@ -1,3 +1,5 @@
+import { buildDatabaseFromSchema } from "./builder";
+
 export type MySqlDataTypes = "int" | "varchar" | "date";
 
 type InferRelation<
@@ -10,10 +12,10 @@ type InferRelation<
     }
   : boolean;
 
-type MySqlColumn<Schema extends object> =
+export type MySqlColumn<Schema extends object> =
   | {
       type: MySqlDataTypes;
-      length: number;
+      length?: number;
       primayKey?: boolean;
       defaultValue?: string;
       unique?: boolean;
@@ -22,12 +24,18 @@ type MySqlColumn<Schema extends object> =
       type: "relation";
     } & InferRelation<Schema, keyof Schema>);
 
-type MySqlTable<Schema extends object> = Record<string, MySqlColumn<Schema>>;
+export type MySqlTable<Schema extends object> = Record<
+  string,
+  MySqlColumn<Schema>
+>;
 
-type MySqlSchema<Schema extends object> = {
+export type MySqlSchema<Schema extends object> = {
   [Table in keyof Schema]: MySqlTable<Schema>;
 };
 
 export const declareMySqlSchema = <TData extends MySqlSchema<TData>>(
   schema: TData
-) => schema satisfies MySqlSchema<TData>;
+) => {
+  buildDatabaseFromSchema(schema);
+  return schema satisfies MySqlSchema<TData>;
+};
