@@ -8,28 +8,32 @@ const schema = declareMySqlSchema(
     database: "",
   },
   {
-    ["identity_manager"]: {
+    Organization: {
       id: {
         type: "int",
-        length: 1,
+        primaryKey: true,
       },
-      account: {
-        length: 1,
+      creation: {
         type: "date",
       },
-      identity_tests: {
+      users: {
         type: "relation",
-        relatedTable: "identity_test",
-        relatedColumns: ["key"],
+        relatedTable: "User",
+        relatedColumns: ["email"],
       },
     },
-    ["User"]: {
-      email: { type: "int", length: 10 },
-      password: { type: "date", length: 20 },
-      login: {
+    User: {
+      email: { type: "varchar", length: 10, primaryKey: true },
+      password: { type: "varchar", length: 20 },
+      posts: {
         type: "relation",
-        relatedTable: "identity_manager",
-        relatedColumns: ["account", "id"],
+        relatedColumns: ["id"],
+        relatedTable: "Post",
+      },
+      organization: {
+        type: "relation",
+        relatedTable: "Organization",
+        relatedColumns: ["id"],
       },
     },
     Post: {
@@ -40,17 +44,7 @@ const schema = declareMySqlSchema(
       author: {
         type: "relation",
         relatedTable: "User",
-        relatedColumns: ["email", "password"],
-      },
-    },
-    identity_test: {
-      test: {
-        type: "int",
-        length: 20,
-      },
-      key: {
-        type: "varchar",
-        length: 24,
+        relatedColumns: ["email"],
       },
     },
   }
