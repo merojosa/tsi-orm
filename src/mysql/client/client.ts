@@ -3,7 +3,7 @@ import MySqlDataTypeConverter from "./where.types";
 
 type MySqlTypeScriptOrmClient<Schema extends object> = {
   [Table in keyof Schema]: {
-    findUnique(args: {
+    findAll(args: {
       select?: MySqlSelectFields<Schema, Table>;
       where: MySqlDataTypeConverter<Schema, Table>;
     }): Schema[Table];
@@ -19,8 +19,7 @@ export const createMySqlClient = <Schema extends object>(
     return {
       ...acc,
       [key]: {
-        findUnique: (args: any) =>
-          console.log(`Console ${key}_findUnique`, args),
+        findAll: (args: any) => console.log(`Console ${key}_findAll`, args),
       },
     };
   }, {} as MySqlTypeScriptOrmClient<Schema>);

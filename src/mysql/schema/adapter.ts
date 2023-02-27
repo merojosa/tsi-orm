@@ -1,5 +1,3 @@
-import { buildDatabaseFromSchema, MySqlDbConfig } from "./builder";
-
 export type MySqlDataTypes = "int" | "varchar" | "date";
 
 type InferRelation<
@@ -33,10 +31,8 @@ export type MySqlSchema<Schema extends object> = {
   [Table in keyof Schema]: MySqlTable<Schema>;
 };
 
-export const declareMySqlSchema = async <TData extends MySqlSchema<TData>>(
-  databaseConfig: MySqlDbConfig,
+export const declareMySqlSchema = <TData extends MySqlSchema<TData>>(
   schema: TData
 ) => {
-  buildDatabaseFromSchema(databaseConfig, schema);
   return schema satisfies MySqlSchema<TData>;
 };
