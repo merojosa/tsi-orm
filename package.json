@@ -1,5 +1,5 @@
 {
-  "name": "typescript-orm",
+  "name": "ts-orm",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/merojosa/typescript-orm.git"
+    "url": "git+https://github.com/merojosa/ts-orm.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/merojosa/typescript-orm/issues"
+    "url": "https://github.com/merojosa/ts-orm/issues"
   },
-  "homepage": "https://github.com/merojosa/typescript-orm#readme",
+  "homepage": "https://github.com/merojosa/ts-orm#readme",
   "devDependencies": {
     "typescript": "^4.9.4"
   },
