@@ -42,4 +42,20 @@ const schema = declareMySqlSchema({
   },
 });
 
+// buildDatabaseFromSchema(
+//   {
+//     database: "typescript-orm",
+//     host: "localhost",
+//     password: "Pass1234!",
+//     user: "jose_local",
+//     port: 3306,
+//   },
+//   schema
+// );
+
 const tsClient = createMySqlClient(schema);
+
+tsClient.Organization.findUnique({
+  where: { id: 1 },
+  select: { id: true },
+} as any).then((result) => console.log("DONE!!!", result));

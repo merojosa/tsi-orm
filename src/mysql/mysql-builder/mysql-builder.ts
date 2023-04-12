@@ -2,7 +2,7 @@ import mysql, { ConnectionOptions } from "mysql2/promise";
 import { MySqlDataTypes, MySqlSchema, MySqlTable } from "../schema/adapter";
 
 export type MySqlDbConfig = Required<
-  Pick<ConnectionOptions, "host" | "user" | "password" | "database">
+  Pick<ConnectionOptions, "host" | "user" | "password" | "database" | "port">
 >;
 
 export const buildDatabaseFromSchema = async (

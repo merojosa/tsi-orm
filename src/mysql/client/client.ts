@@ -2,11 +2,16 @@ import { findUniqueConstructor } from "./parser";
 import MySqlSelectFields from "./select.types";
 import MySqlDataTypeConverter from "./where.types";
 
+export type FindUniqueArgs<
+  Schema extends object,
+  Table extends keyof Schema
+> = {
+  select?: MySqlSelectFields<Schema, Table>;
+  where: MySqlDataTypeConverter<Schema, Table>;
+};
+
 type MySqlOperations<Schema extends object, Table extends keyof Schema> = {
-  findUnique(args: {
-    select?: MySqlSelectFields<Schema, Table>;
-    where: MySqlDataTypeConverter<Schema, Table>;
-  }): Schema[Table];
+  findUnique(args: FindUniqueArgs<Schema, Table>): Promise<Schema[Table]>;
 };
 
 type MySqlTypeScriptOrmClient<Schema extends object> = {
@@ -17,7 +22,8 @@ const getObjectKeys = <Obj extends object>(obj: Obj): (keyof Obj)[] => {
   const objectKeys = Object.keys(obj);
   return objectKeys.reduce((keys, key) => {
     if (obj.hasOwnProperty(key)) {
-      return [...keys, key as keyof Obj];
+      keys.push(key as keyof Obj);
+      return keys;
     }
     return keys;
   }, [] as (keyof Obj)[]);
@@ -30,8 +36,9 @@ export const createMySqlClient = <Schema extends object>(
 
   const object = tables.reduce((acc, table) => {
     const ormOperations: MySqlOperations<Schema, typeof table> = {
-      findUnique: (args: any) => findUniqueConstructor(args),
+      findUnique: (args: any) => findUniqueConstructor(args, schema, table),
     };
+
     return {
       ...acc,
       [table]: ormOperations,
