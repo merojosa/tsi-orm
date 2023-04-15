@@ -1,5 +1,6 @@
 import { findUniqueConstructor } from "./parser";
 import MySqlSelectFields from "./select.types";
+import { FilterBySelect } from "./utilities-types";
 import MySqlDataTypeConverter from "./where.types";
 
 export type FindUniqueArgs<
@@ -11,7 +12,14 @@ export type FindUniqueArgs<
 };
 
 type MySqlOperations<Schema extends object, Table extends keyof Schema> = {
-  findUnique(args: FindUniqueArgs<Schema, Table>): Promise<Schema[Table]>;
+  findUnique<
+    TSelectFieldsParam extends FindUniqueArgs<Schema, Table>["select"]
+  >(args: {
+    select: TSelectFieldsParam;
+    where: FindUniqueArgs<Schema, Table>["where"];
+  }): Schema[Table] extends object
+    ? Promise<FilterBySelect<Schema[Table], TSelectFieldsParam>>
+    : Promise<Schema[Table]>;
 };
 
 type MySqlTypeScriptOrmClient<Schema extends object> = {

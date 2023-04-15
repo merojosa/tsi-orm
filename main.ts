@@ -55,7 +55,18 @@ const schema = declareMySqlSchema({
 
 const tsClient = createMySqlClient(schema);
 
-tsClient.Organization.findUnique({
-  where: { id: 1 },
-  select: { id: true },
-} as any).then((result) => console.log("DONE!!!", result));
+const method = async () => {
+  const result = await tsClient.Organization.findUnique({
+    select: {
+      id: true,
+      users: {
+        email: true,
+      },
+    },
+    where: { id: 1 } as any,
+  });
+
+  console.log("BREAKPOINT", result);
+};
+
+method();
