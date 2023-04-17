@@ -1,18 +1,20 @@
 type MySqlDataTypeConverter<
-  Schema extends object,
-  Table extends keyof Schema
+  TSchema extends object,
+  TTable extends keyof TSchema
 > = {
-  [Column in keyof Schema[Table]]: Schema[Table][Column] extends { type: "int" }
+  [Column in keyof TSchema[TTable]]: TSchema[TTable][Column] extends {
+    type: "int";
+  }
     ? number
-    : Schema[Table][Column] extends { type: "date" }
+    : TSchema[TTable][Column] extends { type: "date" }
     ? Date
-    : Schema[Table][Column] extends { type: "varchar" }
+    : TSchema[TTable][Column] extends { type: "varchar" }
     ? string
-    : Schema[Table][Column] extends {
+    : TSchema[TTable][Column] extends {
         type: "relation";
-        relatedTable: keyof Schema;
+        relatedTable: keyof TSchema;
       }
-    ? MySqlDataTypeConverter<Schema, Schema[Table][Column]["relatedTable"]>
+    ? MySqlDataTypeConverter<TSchema, TSchema[TTable][Column]["relatedTable"]>
     : never;
 };
 

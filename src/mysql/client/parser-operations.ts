@@ -1,7 +1,16 @@
 import mysql from "mysql2/promise";
-import { FindUniqueArgs } from "./client";
+import MySqlDataTypeConverter from "./where.types";
+import MySqlSelectFields from "./select.types";
 
-export const findUniqueConstructor = async <Schema extends object>(
+export type FindUniqueArgs<
+  Schema extends object,
+  Table extends keyof Schema
+> = {
+  select?: MySqlSelectFields<Schema, Table>;
+  where: MySqlDataTypeConverter<Schema, Table>;
+};
+
+export const findUniqueParser = async <Schema extends object>(
   args: FindUniqueArgs<Schema, keyof Schema>,
   _schema: Schema,
   table: string | number | symbol

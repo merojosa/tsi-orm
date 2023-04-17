@@ -1,16 +1,20 @@
 export type MySqlDataTypes = "int" | "varchar" | "date";
 
+/*
+ * It will infer the relation looking at the schema. That means when the
+ * relatedTable changes, the relatedColumns has to belong to that particular table.
+ **/
 type InferRelation<
-  Schema extends object,
-  Tables
-> = Tables extends infer RelatedTableVariable extends keyof Schema
+  TSchema extends object,
+  TTables
+> = TTables extends infer RelatedTableVariable extends keyof TSchema
   ? {
       relatedTable: RelatedTableVariable;
-      relatedColumns: Array<keyof Schema[RelatedTableVariable]>;
+      relatedColumns: Array<keyof TSchema[RelatedTableVariable]>;
     }
-  : boolean;
+  : never;
 
-export type MySqlColumn<Schema extends object> =
+export type MySqlColumn<TSchema extends object> =
   | {
       type: MySqlDataTypes;
       length?: number;
@@ -20,15 +24,15 @@ export type MySqlColumn<Schema extends object> =
     }
   | ({
       type: "relation";
-    } & InferRelation<Schema, keyof Schema>);
+    } & InferRelation<TSchema, keyof TSchema>);
 
-export type MySqlTable<Schema extends object> = Record<
+export type MySqlTable<TSchema extends object> = Record<
   string,
-  MySqlColumn<Schema>
+  MySqlColumn<TSchema>
 >;
 
-export type MySqlSchema<Schema extends object> = {
-  [Table in keyof Schema]: MySqlTable<Schema>;
+export type MySqlSchema<TSchema extends object> = {
+  [Table in keyof TSchema]: MySqlTable<TSchema>;
 };
 
 export const declareMySqlSchema = <TData extends MySqlSchema<TData>>(

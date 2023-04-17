@@ -20,25 +20,32 @@ export type GetMySqlDataType<
   ? Date
   : never;
 
+/* This type filters the fields that are selected with the generic TSelectColumns.
+ * If the field is a relation, it will go directly to its table definition to select
+ * the relation fields. That's why we need the chema definition.
+ * If a field is not selected (false or does not exist in TSelectColumns), it will
+ * return the never type.
+ * OmitNever will discard every property that has the never type.
+ */
 export type FilterBySelect<
   TSchema extends object,
   TTable,
-  TSelectFields
+  TSelectColumns
 > = OmitNever<{
-  [TBaseKey in keyof TTable]: TBaseKey extends keyof TSelectFields // The field exists in the select fields?
-    ? TSelectFields[TBaseKey] extends true // Is field selected?
+  [TBaseKey in keyof TTable]: TBaseKey extends keyof TSelectColumns // The field exists in the select fields?
+    ? TSelectColumns[TBaseKey] extends true // Is field selected?
       ? TTable[TBaseKey] extends {
           type: MySqlDataTypes;
         }
         ? GetMySqlDataType<TTable[TBaseKey]>
         : never
-      : TSelectFields[TBaseKey] extends object
+      : TSelectColumns[TBaseKey] extends object
       ? TTable[TBaseKey] extends { type: "relation"; relatedTable: string } // Is the field is a relation?
         ? TTable[TBaseKey]["relatedTable"] extends keyof TSchema // Does it belong to the schema?
           ? FilterBySelect<
               TSchema,
               TSchema[TTable[TBaseKey]["relatedTable"]],
-              TSelectFields[TBaseKey]
+              TSelectColumns[TBaseKey]
             >
           : never
         : never

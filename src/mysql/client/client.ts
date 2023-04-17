@@ -1,55 +1,45 @@
-import { findUniqueConstructor } from "./parser";
-import MySqlSelectFields from "./select.types";
+import { FindUniqueArgs, findUniqueParser } from "./parser-operations";
 import { FilterBySelect } from "./utilities-types";
-import MySqlDataTypeConverter from "./where.types";
 
-export type FindUniqueArgs<
-  Schema extends object,
-  Table extends keyof Schema
-> = {
-  select?: MySqlSelectFields<Schema, Table>;
-  where: MySqlDataTypeConverter<Schema, Table>;
-};
-
-type MySqlOperations<Schema extends object, Table extends keyof Schema> = {
+type MySqlOperations<TSchema extends object, TTable extends keyof TSchema> = {
   findUnique<
-    TSelectFieldsParam extends FindUniqueArgs<Schema, Table>["select"]
+    TSelectFieldsParam extends FindUniqueArgs<TSchema, TTable>["select"]
   >(args: {
     select: TSelectFieldsParam;
-    where: FindUniqueArgs<Schema, Table>["where"];
-  }): Promise<FilterBySelect<Schema, Schema[Table], TSelectFieldsParam>>;
+    where: FindUniqueArgs<TSchema, TTable>["where"];
+  }): Promise<FilterBySelect<TSchema, TSchema[TTable], TSelectFieldsParam>>;
 };
 
-type MySqlTypeScriptOrmClient<Schema extends object> = {
-  [Table in keyof Schema]: MySqlOperations<Schema, Table>;
+type MySqlTypeScriptOrmClient<TSchema extends object> = {
+  [Table in keyof TSchema]: MySqlOperations<TSchema, Table>;
 };
 
-const getObjectKeys = <Obj extends object>(obj: Obj): (keyof Obj)[] => {
+const getObjectKeys = <TObj extends object>(obj: TObj): (keyof TObj)[] => {
   const objectKeys = Object.keys(obj);
   return objectKeys.reduce((keys, key) => {
     if (obj.hasOwnProperty(key)) {
-      keys.push(key as keyof Obj);
+      keys.push(key as keyof TObj);
       return keys;
     }
     return keys;
-  }, [] as (keyof Obj)[]);
+  }, [] as (keyof TObj)[]);
 };
 
-export const createMySqlClient = <Schema extends object>(
-  schema: Schema
-): MySqlTypeScriptOrmClient<Schema> => {
+export const createMySqlClient = <TSchema extends object>(
+  schema: TSchema
+): MySqlTypeScriptOrmClient<TSchema> => {
   const tables = getObjectKeys(schema);
 
   const object = tables.reduce((acc, table) => {
-    const ormOperations: MySqlOperations<Schema, typeof table> = {
-      findUnique: (args: any) => findUniqueConstructor(args, schema, table),
+    const ormOperations: MySqlOperations<TSchema, typeof table> = {
+      findUnique: (args: any) => findUniqueParser(args, schema, table),
     };
 
     return {
       ...acc,
       [table]: ormOperations,
     };
-  }, {} as MySqlTypeScriptOrmClient<Schema>);
+  }, {} as MySqlTypeScriptOrmClient<TSchema>);
 
   return object;
 };
