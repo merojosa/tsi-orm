@@ -59,14 +59,16 @@ const method = async () => {
   const result = await tsClient.Organization.findUnique({
     select: {
       id: true,
+      creation: true,
       users: {
         email: true,
+        password: true,
       },
     },
     where: { id: 1 } as any,
   });
 
-  console.log("BREAKPOINT", result);
+  console.log("BREAKPOINT", result.users.password);
 };
 
 method();

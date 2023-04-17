@@ -1,11 +1,11 @@
 import { MySqlDataTypes } from "../schema/adapter";
 
-export type OmitNever<WithNevers> = {
-  [Key in keyof WithNevers as WithNevers[Key] extends never
+export type OmitNever<TWithNevers> = {
+  [Key in keyof TWithNevers as TWithNevers[Key] extends never
     ? never
-    : Key]: WithNevers[Key] extends object
-    ? OmitNever<WithNevers[Key]>
-    : WithNevers[Key];
+    : Key]: TWithNevers[Key] extends object
+    ? OmitNever<TWithNevers[Key]>
+    : TWithNevers[Key];
 };
 
 export type GetMySqlDataType<
@@ -20,48 +20,28 @@ export type GetMySqlDataType<
   ? Date
   : never;
 
-export type FilterBySelect<TBase, TSelectBase> = OmitNever<{
-  [TBaseKey in keyof TBase]: TBaseKey extends keyof TSelectBase
-    ? TSelectBase[TBaseKey] extends true
-      ? TBase[TBaseKey] extends {
+export type FilterBySelect<
+  TSchema extends object,
+  TTable,
+  TSelectFields
+> = OmitNever<{
+  [TBaseKey in keyof TTable]: TBaseKey extends keyof TSelectFields // The field exists in the select fields?
+    ? TSelectFields[TBaseKey] extends true // Is field selected?
+      ? TTable[TBaseKey] extends {
           type: MySqlDataTypes;
         }
-        ? GetMySqlDataType<TBase[TBaseKey]>
+        ? GetMySqlDataType<TTable[TBaseKey]>
         : never
-      : TSelectBase[TBaseKey] extends object
-      ? TBase[TBaseKey] extends object
-        ? FilterBySelect<TBase[TBaseKey], TSelectBase[TBaseKey]> // Recursive call
+      : TSelectFields[TBaseKey] extends object
+      ? TTable[TBaseKey] extends { type: "relation"; relatedTable: string } // Is the field is a relation?
+        ? TTable[TBaseKey]["relatedTable"] extends keyof TSchema // Does it belong to the schema?
+          ? FilterBySelect<
+              TSchema,
+              TSchema[TTable[TBaseKey]["relatedTable"]],
+              TSelectFields[TBaseKey]
+            >
+          : never
         : never
       : never
     : never;
 }>;
-
-// export type FilterBySelect<TBase, TSelectBase> = OmitNever<{
-//   [TBaseKey in keyof TBase]: TBaseKey extends keyof TSelectBase
-//     ? TSelectBase[TBaseKey] extends true
-//       ? TBase[TBaseKey] extends {
-//           type: MySqlDataTypes;
-//         }
-//         ? GetMySqlDataType<TBase[TBaseKey]>
-//         : never
-//       : never
-//     : never;
-// }>;
-
-// type Test = FilterBySelect<
-//   {
-//     id: {
-//       type: "int";
-//       primaryKey: boolean;
-//     };
-//     creation: {
-//       type: "date";
-//     };
-//     users: {
-//       type: "relation";
-//       relatedTable: "User";
-//       relatedColumns: "email"[];
-//     };
-//   },
-//   { id: true; creation: true; users: false }
-// >;

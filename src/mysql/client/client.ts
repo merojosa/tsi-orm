@@ -17,9 +17,7 @@ type MySqlOperations<Schema extends object, Table extends keyof Schema> = {
   >(args: {
     select: TSelectFieldsParam;
     where: FindUniqueArgs<Schema, Table>["where"];
-  }): Schema[Table] extends object
-    ? Promise<FilterBySelect<Schema[Table], TSelectFieldsParam>>
-    : Promise<Schema[Table]>;
+  }): Promise<FilterBySelect<Schema, Schema[Table], TSelectFieldsParam>>;
 };
 
 type MySqlTypeScriptOrmClient<Schema extends object> = {
