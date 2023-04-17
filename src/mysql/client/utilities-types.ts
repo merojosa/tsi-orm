@@ -44,7 +44,7 @@ export type FilterBySelect<
         ? TTable[TBaseKey]["relatedTable"] extends keyof TSchema // Does it belong to the schema?
           ? FilterBySelect<
               TSchema,
-              TSchema[TTable[TBaseKey]["relatedTable"]],
+              TSchema[TTable[TBaseKey]["relatedTable"]], // This is the relation mapped to the schema
               TSelectColumns[TBaseKey]
             >
           : never
