@@ -1,4 +1,4 @@
-export type MySqlDataTypes = "int" | "varchar" | "date";
+export type MySqlDataType = "int" | "varchar" | "date";
 
 /*
  * It will infer the relation looking at the schema. That means when the
@@ -16,7 +16,7 @@ type InferRelation<
 
 export type MySqlColumn<TSchema extends object> =
   | {
-      type: MySqlDataTypes;
+      type: MySqlDataType;
       length?: number;
       primayKey?: boolean;
       defaultValue?: string;

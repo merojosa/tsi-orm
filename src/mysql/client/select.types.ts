@@ -1,4 +1,4 @@
-import { MySqlDataTypes } from "../schema/adapter";
+import { MySqlDataType } from "../schema/adapter";
 
 /**
  * If the object has a `type` property with primitives, stop the recursion.
@@ -8,7 +8,7 @@ type BooleanConverter<
   TTable extends keyof TSchema
 > = Partial<{
   [Column in keyof TSchema[TTable]]: TSchema[TTable][Column] extends {
-    type: MySqlDataTypes;
+    type: MySqlDataType;
   }
     ? boolean
     : TSchema[TTable][Column] extends { relatedTable: keyof TSchema }

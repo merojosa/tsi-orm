@@ -1,5 +1,5 @@
 import mysql, { ConnectionOptions } from "mysql2/promise";
-import { MySqlDataTypes, MySqlSchema, MySqlTable } from "../schema/adapter";
+import { MySqlDataType, MySqlSchema, MySqlTable } from "../schema/adapter";
 
 export type MySqlDbConfig = Required<
   Pick<ConnectionOptions, "host" | "user" | "password" | "database" | "port">
@@ -53,7 +53,7 @@ const getColumns = (tableProperties: MySqlTable<any>): string => {
   return concatenatedColumns;
 };
 
-const getMySqlDataType = (type: MySqlDataTypes, length?: number): string => {
+const getMySqlDataType = (type: MySqlDataType, length?: number): string => {
   const lenghtSql = `${length === undefined ? "" : `(${length})`}`;
   switch (type) {
     case "date":

@@ -1,4 +1,4 @@
-import { MySqlDataTypes } from "../schema/adapter";
+import { MySqlDataType } from "../schema/adapter";
 
 export type OmitNever<TWithNevers> = {
   [Key in keyof TWithNevers as TWithNevers[Key] extends never
@@ -10,7 +10,7 @@ export type OmitNever<TWithNevers> = {
 
 export type GetMySqlDataType<
   TType extends {
-    type: MySqlDataTypes;
+    type: MySqlDataType;
   }
 > = TType extends { type: "int" }
   ? number
@@ -35,7 +35,7 @@ export type FilterBySelect<
   [TBaseKey in keyof TTable]: TBaseKey extends keyof TSelectColumns // The field exists in the select fields?
     ? TSelectColumns[TBaseKey] extends true // Is field selected?
       ? TTable[TBaseKey] extends {
-          type: MySqlDataTypes;
+          type: MySqlDataType;
         }
         ? GetMySqlDataType<TTable[TBaseKey]>
         : never
