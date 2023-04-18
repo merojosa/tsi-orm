@@ -68,7 +68,7 @@ const method = async () => {
     where: { id: 1 } as any,
   });
 
-  console.log("BREAKPOINT", result.users.password);
+  console.log("Done!!!", result);
 };
 
 method();

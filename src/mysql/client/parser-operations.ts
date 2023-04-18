@@ -10,6 +10,21 @@ export type FindUniqueArgs<
   where: MySqlDataTypeConverter<Schema, Table>;
 };
 
+// This should be removed
+const tempGetSelectStatement = (selectEntries: [string, unknown][]) => {
+  return selectEntries.reduce((selectString, [key, value], index) => {
+    if (!value) {
+      return selectString;
+    }
+
+    if (typeof value === "object") {
+      return selectString;
+    }
+
+    return selectString.concat(`${index === 0 ? "" : ","} '${key}', ${key}`);
+  }, "");
+};
+
 export const findUniqueParser = async <Schema extends object>(
   args: FindUniqueArgs<Schema, keyof Schema>,
   _schema: Schema,
@@ -37,13 +52,53 @@ export const findUniqueParser = async <Schema extends object>(
       }, "")}`
     : "";
 
+  // WIP: Handle relations
+  function getSelectFieldsQuery(
+    obj: object,
+    selectValue: string,
+    firstLevel: boolean = true
+  ): string {
+    const entries = Object.entries(obj);
+
+    const result = entries.reduce((reduceValue, [key, value], index) => {
+      if (!value) {
+        return reduceValue;
+      }
+
+      if (value === true) {
+        return reduceValue.concat(
+          `${firstLevel && index === 0 ? "" : ","} '${key}', ${key}`
+        );
+      }
+
+      if (typeof value === "object") {
+        return reduceValue.concat(
+          getSelectFieldsQuery(value, selectValue, false)
+        );
+      }
+
+      return reduceValue;
+    }, "");
+
+    return result.trim();
+  }
+
+  if (args.select) {
+    const resultTest = getSelectFieldsQuery(args.select, "");
+  }
+
+  const selectEntries = Object.entries(args.select || {});
+  const selectStatement = tempGetSelectStatement(selectEntries);
+
+  const tableName = table.toString();
+
   const [rows] = await connection.execute(
-    `SELECT JSON_OBJECT('id', id, 'creation', creation) AS organization FROM organization ${whereStatement}`,
+    `SELECT JSON_OBJECT(${selectStatement}) AS ${tableName} FROM ${tableName} ${whereStatement}`,
     [1]
   );
 
   if (Array.isArray(rows) && rows.length) {
     const result = rows[0] as any;
-    return result[table.toString().toLowerCase()];
+    return result[tableName];
   }
 };
