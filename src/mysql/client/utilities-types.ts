@@ -1,4 +1,4 @@
-import { MySqlDataType } from "../schema/adapter";
+import { MySqlDataType, MySqlRelationType } from "../schema/adapter";
 
 export type OmitNever<TWithNevers> = {
   [Key in keyof TWithNevers as TWithNevers[Key] extends never
@@ -40,11 +40,11 @@ export type FilterBySelect<
         ? GetMySqlDataType<TTable[TBaseKey]>
         : never
       : TSelectColumns[TBaseKey] extends object
-      ? TTable[TBaseKey] extends { type: "relation"; relatedTable: string } // Is the field is a relation?
-        ? TTable[TBaseKey]["relatedTable"] extends keyof TSchema // Does it belong to the schema?
+      ? TTable[TBaseKey] extends { type: MySqlRelationType; table: string } // Is the field is a relation?
+        ? TTable[TBaseKey]["table"] extends keyof TSchema // Does it belong to the schema?
           ? FilterBySelect<
               TSchema,
-              TSchema[TTable[TBaseKey]["relatedTable"]], // This is the relation mapped to the schema
+              TSchema[TTable[TBaseKey]["table"]], // This is the relation mapped to the schema
               TSelectColumns[TBaseKey]
             >
           : never

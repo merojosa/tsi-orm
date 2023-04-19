@@ -11,8 +11,8 @@ type BooleanConverter<
     type: MySqlDataType;
   }
     ? boolean
-    : TSchema[TTable][Column] extends { relatedTable: keyof TSchema }
-    ? BooleanConverter<TSchema, TSchema[TTable][Column]["relatedTable"]>
+    : TSchema[TTable][Column] extends { table: keyof TSchema }
+    ? BooleanConverter<TSchema, TSchema[TTable][Column]["table"]>
     : never;
 }>;
 

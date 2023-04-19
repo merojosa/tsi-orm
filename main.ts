@@ -10,23 +10,22 @@ const schema = declareMySqlSchema({
       type: "date",
     },
     users: {
-      type: "relation",
-      relatedTable: "User",
-      relatedColumns: ["email"],
+      type: "many-relation",
+      table: "User",
     },
   },
   User: {
     email: { type: "varchar", length: 10, primaryKey: true },
     password: { type: "varchar", length: 20 },
     posts: {
-      type: "relation",
-      relatedColumns: ["id"],
-      relatedTable: "Post",
+      type: "many-relation",
+      table: "Post",
     },
     organization: {
-      type: "relation",
-      relatedTable: "Organization",
-      relatedColumns: ["id"],
+      type: "one-relation",
+      table: "Organization",
+      references: ["id"],
+      fields: ["email"],
     },
   },
   Post: {
@@ -35,9 +34,27 @@ const schema = declareMySqlSchema({
       primaryKey: true,
     },
     author: {
-      type: "relation",
-      relatedTable: "User",
-      relatedColumns: ["email"],
+      type: "one-relation",
+      table: "User",
+      references: ["email"],
+      fields: ["id"],
+    },
+  },
+  Category: {
+    id: {
+      type: "int",
+      primaryKey: true,
+    },
+    title: {
+      type: "varchar",
+    },
+  },
+  CategoriesOnPosts: {
+    post: {
+      type: "one-relation",
+      table: "Post",
+      references: ["id"],
+      fields: ["post"],
     },
   },
 });
@@ -60,10 +77,7 @@ const method = async () => {
     select: {
       id: true,
       creation: true,
-      users: {
-        email: true,
-        password: true,
-      },
+      // users: {},
     },
     where: { id: 1 } as any,
   });

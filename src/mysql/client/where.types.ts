@@ -1,3 +1,5 @@
+import { MySqlRelationType } from "../schema/adapter";
+
 type MySqlDataTypeConverter<
   TSchema extends object,
   TTable extends keyof TSchema
@@ -11,10 +13,10 @@ type MySqlDataTypeConverter<
     : TSchema[TTable][Column] extends { type: "varchar" }
     ? string
     : TSchema[TTable][Column] extends {
-        type: "relation";
-        relatedTable: keyof TSchema;
+        type: MySqlRelationType;
+        table: keyof TSchema;
       }
-    ? MySqlDataTypeConverter<TSchema, TSchema[TTable][Column]["relatedTable"]>
+    ? MySqlDataTypeConverter<TSchema, TSchema[TTable][Column]["table"]>
     : never;
 };
 

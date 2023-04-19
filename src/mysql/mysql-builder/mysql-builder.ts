@@ -33,12 +33,15 @@ export const buildDatabaseFromSchema = async (
   }
 };
 
-const getColumns = (tableProperties: MySqlTable<any>): string => {
+const getColumns = (tableProperties: MySqlTable<any, any>): string => {
   const columns = Object.entries(tableProperties);
 
   const concatenatedColumns = columns.reduce(
     (acc, [columnName, columnProperties], index) => {
-      if (columnProperties.type !== "relation") {
+      if (
+        columnProperties.type !== "many-relation" &&
+        columnProperties.type !== "one-relation"
+      ) {
         return acc.concat(
           `${index !== 0 ? ", " : ""}\`${columnName}\` ${getMySqlDataType(
             columnProperties.type,
