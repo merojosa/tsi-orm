@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
-import MySqlDataTypeConverter from "./where.types";
-import MySqlSelectFields from "./select.types";
+import type MySqlDataTypeConverter from "./where.types";
+import type MySqlSelectFields from "./select.types";
 
 export type FindUniqueArgs<
   Schema extends object,

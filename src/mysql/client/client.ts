@@ -1,5 +1,5 @@
 import { FindUniqueArgs, findUniqueParser } from "./parser-operations";
-import { FilterBySelect } from "./utilities-types";
+import type { FilterBySelect } from "./utilities.types";
 
 type MySqlOperations<TSchema extends object, TTable extends keyof TSchema> = {
   findUnique<
