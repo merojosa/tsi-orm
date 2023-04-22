@@ -6,7 +6,7 @@ export type MySqlRelationType = "one-relation" | "many-relation";
  *
  * Only one relations can have references and fields
  **/
-type OneRelation<
+type MySqlOneRelation<
   TSchema extends object,
   TTables,
   TChosenTable extends keyof TSchema
@@ -18,7 +18,7 @@ type OneRelation<
     }
   : never;
 
-export type MySqlColumn<
+export type MySqlColumnDefinition<
   TSchema extends object,
   TChosenTable extends keyof TSchema
 > =
@@ -35,30 +35,18 @@ export type MySqlColumn<
     }
   | ({
       type: Extract<MySqlRelationType, "one-relation">;
-    } & OneRelation<TSchema, keyof TSchema, TChosenTable>);
+    } & MySqlOneRelation<TSchema, keyof TSchema, TChosenTable>);
 
 export type MySqlTable<
   TSchema extends object,
-  TChosenTable extends keyof TSchema
-> = Record<string, MySqlColumn<TSchema, TChosenTable>>;
+  TCurrentTable extends keyof TSchema
+> = Record<string, MySqlColumnDefinition<TSchema, TCurrentTable>>;
 
 export type MySqlSchema<TSchema extends object> = {
-  [Table in keyof TSchema]: MySqlTable<TSchema, Table>;
+  [CurrentTable in keyof TSchema]: MySqlTable<TSchema, CurrentTable>;
 };
 
-// TSchema extends Record<
-// string,
-// Record<string, MySqlColumn<TSchema, keyof TSchema>>
-// >
-
-export const declareMySqlSchema = <
-  TSchema extends {
-    [TCurrentTable in keyof TSchema]: Record<
-      string,
-      MySqlColumn<TSchema, TCurrentTable>
-    >;
-  }
->(
+export const declareMySqlSchema = <TSchema extends MySqlSchema<TSchema>>(
   schema: TSchema
 ) => {
   return schema;
