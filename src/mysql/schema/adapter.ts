@@ -46,8 +46,28 @@ export type MySqlSchema<TSchema extends object> = {
   [Table in keyof TSchema]: MySqlTable<TSchema, Table>;
 };
 
-export const declareMySqlSchema = <TData extends MySqlSchema<TData>>(
-  schema: TData
+type ColumnDefinition<TTables extends keyof any> =
+  | {
+      type: "date";
+      value: Date;
+    }
+  | {
+      type: "number";
+      value: number;
+    }
+  | {
+      type: "many-relation";
+      table: TTables;
+    }
+  | {
+      type: "one-relation";
+    };
+
+export const declareMySqlSchema = <
+  TSchema extends Record<string, TColumns>,
+  TColumns extends Record<string, ColumnDefinition<keyof TSchema>>
+>(
+  schema: TSchema
 ) => {
-  return schema satisfies MySqlSchema<TData>;
+  return schema;
 };
