@@ -29,13 +29,13 @@ export type MySqlColumn<
       defaultValue?: string;
       unique?: boolean;
     }
-  | ({
-      type: Extract<MySqlRelationType, "one-relation">;
-    } & OneRelation<TSchema, keyof TSchema, TChosenTable>)
   | {
       type: Extract<MySqlRelationType, "many-relation">;
       table: keyof TSchema;
-    };
+    }
+  | ({
+      type: Extract<MySqlRelationType, "one-relation">;
+    } & OneRelation<TSchema, keyof TSchema, TChosenTable>);
 
 export type MySqlTable<
   TSchema extends object,
@@ -46,26 +46,18 @@ export type MySqlSchema<TSchema extends object> = {
   [Table in keyof TSchema]: MySqlTable<TSchema, Table>;
 };
 
-type ColumnDefinition<TTables extends keyof any> =
-  | {
-      type: "date";
-      value: Date;
-    }
-  | {
-      type: "number";
-      value: number;
-    }
-  | {
-      type: "many-relation";
-      table: TTables;
-    }
-  | {
-      type: "one-relation";
-    };
+// TSchema extends Record<
+// string,
+// Record<string, MySqlColumn<TSchema, keyof TSchema>>
+// >
 
 export const declareMySqlSchema = <
-  TSchema extends Record<string, TColumns>,
-  TColumns extends Record<string, ColumnDefinition<keyof TSchema>>
+  TSchema extends {
+    [TCurrentTable in keyof TSchema]: Record<
+      string,
+      MySqlColumn<TSchema, TCurrentTable>
+    >;
+  }
 >(
   schema: TSchema
 ) => {
