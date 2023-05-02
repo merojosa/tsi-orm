@@ -1,32 +1,47 @@
 import { createMySqlClient, declareMySqlSchema } from "./src/mysql";
 
-// Good at the moment, we'll see
 const schema = declareMySqlSchema({
   Table1: {
-    Columna1: {
-      type: "date",
+    Column1: {
+      type: "boolean",
+      booleanValue: true,
+      optionalValue: "",
     },
-    ColumnaOtra: {
-      type: "int",
+    Column2: {
+      type: "number",
+      numberValue: 777,
+      optionalValue: new Date(),
     },
   },
   Table2: {
-    Columna2: {
+    Column1: {
+      type: "number",
+      numberValue: 0,
+      optionalValue: new Date(),
+    },
+    Column3: {
+      type: "boolean",
+      booleanValue: true,
+    },
+    Column4: {
       type: "many-relation",
       table: "Table2",
     },
-    ColumnaOneRelation: {
+    Columna5: {
       type: "one-relation",
-      table: "Table1",
-      fields: ["Columna2", "ColumnaOneRelation"],
-      references: ["ColumnaOtra"],
+      test: "1",
+    },
+  },
+  Table3: {
+    ColumnTest: {
+      type: "number",
+      numberValue: 1,
+      optionalValue: new Date(),
     },
   },
 });
 
-type Algo = typeof schema.Table2.ColumnaOneRelation.fields;
-
-// type Algo = typeof schema.Table.Columna1.value;
+type Algo = typeof schema.Table2.Column4.table;
 
 // buildDatabaseFromSchema(
 //   {

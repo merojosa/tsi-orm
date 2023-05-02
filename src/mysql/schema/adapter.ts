@@ -46,19 +46,40 @@ export type MySqlSchema<TSchema extends object> = {
   [Table in keyof TSchema]: MySqlTable<TSchema, Table>;
 };
 
-// TSchema extends Record<
-// string,
-// Record<string, MySqlColumn<TSchema, keyof TSchema>>
-// >
+type ColumnDefinitionTest<TSchema, TCurrentTable> =
+  | {
+      type: "number";
+      numberValue: number;
+      optionalValue?: Date;
+    }
+  | {
+      type: "boolean";
+      booleanValue: boolean;
+      optionalValue?: string;
+    }
+  | {
+      type: "many-relation";
+      table: keyof TSchema;
+    }
+  | {
+      type: "one-relation";
+      // fields: Array<keyof TSchema[TCurrentTable]>;
+      references: TCurrentTable;
+      test: string;
+    };
 
-export const declareMySqlSchema = <
-  TSchema extends {
-    [TCurrentTable in keyof TSchema]: Record<
-      string,
-      MySqlColumn<TSchema, TCurrentTable>
-    >;
-  }
->(
+// This is the good one but we have the problem about passing the schema
+type SchemaTest<TSchema> = {
+  [Table in string]: Record<string, ColumnDefinitionTest<TSchema, Table>>;
+};
+
+// This generates the autocomplete error
+// keyof TSchema generates the autocomplete error
+// type SchemaTest2<TSchema> = {
+//   [Table in keyof TSchema]: Record<string, ColumnDefinitionTest<TSchema>>;
+// };
+
+export const declareMySqlSchema = <const TSchema extends SchemaTest<TSchema>>(
   schema: TSchema
 ) => {
   return schema;
