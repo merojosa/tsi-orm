@@ -1,47 +1,63 @@
 import { createMySqlClient, declareMySqlSchema } from "./src/mysql";
 
 const schema = declareMySqlSchema({
-  Table1: {
-    Column1: {
-      type: "boolean",
-      booleanValue: true,
-      optionalValue: "",
+  Organization: {
+    id: {
+      type: "int",
+      primaryKey: true,
     },
-    Column2: {
-      type: "number",
-      numberValue: 777,
-      optionalValue: new Date(),
+    creation: {
+      type: "date",
     },
-  },
-  Table2: {
-    Column1: {
-      type: "number",
-      numberValue: 0,
-      optionalValue: new Date(),
-    },
-    Column3: {
-      type: "boolean",
-      booleanValue: true,
-    },
-    Column4: {
+    users: {
       type: "many-relation",
-      table: "Table2",
-    },
-    Columna5: {
-      type: "one-relation",
-      test: "1",
+      table: "User",
     },
   },
-  Table3: {
-    ColumnTest: {
-      type: "number",
-      numberValue: 1,
-      optionalValue: new Date(),
+  User: {
+    email: { type: "varchar", length: 10, primaryKey: true },
+    password: { type: "varchar", length: 20 },
+    posts: {
+      type: "many-relation",
+      table: "Post",
+    },
+    organization: {
+      type: "one-relation",
+      table: "Organization",
+      references: ["id"],
+      fields: ["email"],
+    },
+  },
+  Post: {
+    id: {
+      type: "int",
+      primaryKey: true,
+    },
+    author: {
+      type: "one-relation",
+      table: "User",
+      references: ["email"],
+      fields: ["id"],
+    },
+  },
+  Category: {
+    id: {
+      type: "int",
+      primaryKey: true,
+    },
+    title: {
+      type: "varchar",
+    },
+  },
+  CategoriesOnPosts: {
+    post: {
+      type: "one-relation",
+      table: "Post",
+      references: ["id"],
+      fields: ["post"],
     },
   },
 });
-
-type Algo = typeof schema.Table2.Column4.table;
 
 // buildDatabaseFromSchema(
 //   {
@@ -54,17 +70,19 @@ type Algo = typeof schema.Table2.Column4.table;
 //   schema
 // );
 
-// const tsClient = createMySqlClient(schema);
+const tsClient = createMySqlClient(schema);
 
-// const method = async () => {
-//   const result = await tsClient.Organization.findUnique({
-//     select: {
-//       // users: {},
-//     },
-//     where: { id: 1 } as any,
-//   });
+const method = async () => {
+  const result = await tsClient.Organization.findUnique({
+    select: {
+      id: true,
+      creation: true,
+      // users: {},
+    },
+    where: { id: 1 } as any,
+  });
 
-//   console.log("Done!!!", result);
-// };
+  console.log("Done!!!", result.id, result.creation);
+};
 
-// method();
+method();
