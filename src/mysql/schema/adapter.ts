@@ -25,7 +25,7 @@ export type MySqlColumnDefinition<
   | {
       type: MySqlDataType;
       length?: number;
-      primayKey?: boolean;
+      primaryKey?: boolean;
       defaultValue?: string;
       unique?: boolean;
     }
