@@ -1,6 +1,14 @@
-import { createMySqlClient, declareMySqlSchema } from "./src/mysql";
+import { MySqlSchema, createMySqlClient } from "./src/mysql";
 
-const schema = declareMySqlSchema({
+type OwnSchema = {
+  Organization: "id" | "creation" | "users";
+  User: "email" | "password" | "posts" | "organization";
+  Post: "id" | "author";
+  Category: "id" | "title";
+  CategoriesOnPosts: "post";
+};
+
+const schema = {
   Organization: {
     id: {
       type: "int",
@@ -57,7 +65,7 @@ const schema = declareMySqlSchema({
       fields: ["post"],
     },
   },
-});
+} satisfies MySqlSchema<OwnSchema>;
 
 // buildDatabaseFromSchema(
 //   {
@@ -82,7 +90,7 @@ const method = async () => {
     where: { id: 1 } as any,
   });
 
-  console.log("Done!!!", result);
+  console.log("Done!!!", result.id, result.creation);
 };
 
 method();

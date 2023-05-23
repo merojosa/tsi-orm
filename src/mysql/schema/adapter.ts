@@ -6,48 +6,47 @@ export type MySqlRelationType = "one-relation" | "many-relation";
  *
  * Only one relations can have references and fields
  **/
-type OneRelation<
-  TSchema extends object,
+type MySqlOneRelation<
+  TSchema extends Record<string, string>,
   TTables,
   TChosenTable extends keyof TSchema
 > = TTables extends infer TableVariable extends keyof TSchema
   ? {
       table: TableVariable;
-      references: Array<keyof TSchema[TableVariable]>;
-      fields: Array<keyof TSchema[TChosenTable]>;
+      references: Array<TSchema[TableVariable]>;
+      fields: Array<TSchema[TChosenTable]>;
     }
   : never;
 
-export type MySqlColumn<
-  TSchema extends object,
+export type MySqlColumnPrimitive = {
+  type: MySqlDataType;
+  length?: number;
+  primaryKey?: boolean;
+  defaultValue?: string;
+  unique?: boolean;
+};
+
+export type MySqlColumnDefinition<
+  TSchema extends Record<string, string>,
   TChosenTable extends keyof TSchema
 > =
-  | {
-      type: MySqlDataType;
-      length?: number;
-      primayKey?: boolean;
-      defaultValue?: string;
-      unique?: boolean;
-    }
-  | ({
-      type: Extract<MySqlRelationType, "one-relation">;
-    } & OneRelation<TSchema, keyof TSchema, TChosenTable>)
+  | MySqlColumnPrimitive
   | {
       type: Extract<MySqlRelationType, "many-relation">;
       table: keyof TSchema;
-    };
+    }
+  | ({
+      type: Extract<MySqlRelationType, "one-relation">;
+    } & MySqlOneRelation<TSchema, keyof TSchema, TChosenTable>);
 
 export type MySqlTable<
-  TSchema extends object,
-  TChosenTable extends keyof TSchema
-> = Record<string, MySqlColumn<TSchema, TChosenTable>>;
+  TSchema extends Record<string, string>,
+  TCurrentTable extends keyof TSchema
+> = Record<
+  TSchema[TCurrentTable],
+  MySqlColumnDefinition<TSchema, TCurrentTable>
+>;
 
-export type MySqlSchema<TSchema extends object> = {
-  [Table in keyof TSchema]: MySqlTable<TSchema, Table>;
-};
-
-export const declareMySqlSchema = <TData extends MySqlSchema<TData>>(
-  schema: TData
-) => {
-  return schema satisfies MySqlSchema<TData>;
+export type MySqlSchema<TSchema extends Record<string, string>> = {
+  [CurrentTable in keyof TSchema]: MySqlTable<TSchema, CurrentTable>;
 };
