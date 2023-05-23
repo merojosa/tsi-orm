@@ -18,17 +18,19 @@ type MySqlOneRelation<
     }
   : never;
 
+export type MySqlColumnPrimitive = {
+  type: MySqlDataType;
+  length?: number;
+  primaryKey?: boolean;
+  defaultValue?: string;
+  unique?: boolean;
+};
+
 export type MySqlColumnDefinition<
   TSchema extends object,
   TChosenTable extends keyof TSchema
 > =
-  | {
-      type: MySqlDataType;
-      length?: number;
-      primaryKey?: boolean;
-      defaultValue?: string;
-      unique?: boolean;
-    }
+  | MySqlColumnPrimitive
   | {
       type: Extract<MySqlRelationType, "many-relation">;
       table: keyof TSchema;
@@ -51,3 +53,5 @@ export const declareMySqlSchema = <TSchema extends MySqlSchema<TSchema>>(
 ) => {
   return schema;
 };
+
+export const Column = <TArgs extends MySqlColumnPrimitive>(arg: TArgs) => arg;

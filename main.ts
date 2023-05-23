@@ -1,11 +1,15 @@
-import { createMySqlClient, declareMySqlSchema } from "./src/mysql";
+import {
+  MySqlColumnPrimitive,
+  createMySqlClient,
+  declareMySqlSchema,
+} from "./src/mysql";
 
 const schema = declareMySqlSchema({
   Organization: {
     id: {
       type: "int",
       primaryKey: true,
-    },
+    } satisfies MySqlColumnPrimitive,
     creation: {
       type: "date",
     },
