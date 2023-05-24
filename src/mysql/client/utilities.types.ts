@@ -1,12 +1,16 @@
 import { MySqlDataType, MySqlRelationType } from "../schema/adapter";
 
-export type OmitNever<TWithNevers> = {
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
+export type OmitNever<TWithNevers> = Prettify<{
   [Key in keyof TWithNevers as TWithNevers[Key] extends never
     ? never
     : Key]: TWithNevers[Key] extends object
     ? OmitNever<TWithNevers[Key]>
     : TWithNevers[Key];
-};
+}>;
 
 export type GetMySqlDataType<
   TType extends {

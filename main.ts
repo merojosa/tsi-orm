@@ -1,68 +1,30 @@
 import { MySqlSchema, createMySqlClient } from "./src/mysql";
 
 type OwnSchema = {
-  Organization: "id" | "creation" | "users";
-  User: "email" | "password" | "posts" | "organization";
-  Post: "id" | "author";
-  Category: "id" | "title";
-  CategoriesOnPosts: "post";
+  Author: "id" | "name" | "email" | "birth" | "books";
+  Book: "id" | "name" | "author" | "authorId";
 };
 
 const schema = {
-  Organization: {
-    id: {
-      type: "int",
-      primaryKey: true,
-    },
-    creation: {
-      type: "date",
-    },
-    users: {
+  Author: {
+    id: { type: "int", primaryKey: true },
+    name: { type: "varchar" },
+    birth: { type: "date" },
+    email: { type: "varchar" },
+    books: {
       type: "many-relation",
-      table: "User",
+      table: "Book",
     },
   },
-  User: {
-    email: { type: "varchar", length: 10, primaryKey: true },
-    password: { type: "varchar", length: 20 },
-    posts: {
-      type: "many-relation",
-      table: "Post",
-    },
-    organization: {
-      type: "one-relation",
-      table: "Organization",
-      references: ["id"],
-      fields: ["email"],
-    },
-  },
-  Post: {
-    id: {
-      type: "int",
-      primaryKey: true,
-    },
+  Book: {
+    id: { type: "int", primaryKey: true },
+    name: { type: "varchar" },
+    authorId: { type: "int" },
     author: {
       type: "one-relation",
-      table: "User",
-      references: ["email"],
-      fields: ["id"],
-    },
-  },
-  Category: {
-    id: {
-      type: "int",
-      primaryKey: true,
-    },
-    title: {
-      type: "varchar",
-    },
-  },
-  CategoriesOnPosts: {
-    post: {
-      type: "one-relation",
-      table: "Post",
+      table: "Author",
+      fields: ["authorId"],
       references: ["id"],
-      fields: ["post"],
     },
   },
 } satisfies MySqlSchema<OwnSchema>;
@@ -81,16 +43,12 @@ const schema = {
 const tsClient = createMySqlClient(schema);
 
 const method = async () => {
-  const result = await tsClient.Organization.findUnique({
-    select: {
-      id: true,
-      creation: true,
-      // users: {},
-    },
+  const result = await tsClient.Author.findUnique({
     where: { id: 1 } as any,
+    select: { id: true, books: { name: true } },
   });
 
-  console.log("Done!!!", result.id, result.creation);
+  console.log("Done!!!", result);
 };
 
 method();
