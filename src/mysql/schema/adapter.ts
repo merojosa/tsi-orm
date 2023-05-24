@@ -1,5 +1,7 @@
 export type MySqlDataType = "int" | "varchar" | "date";
-export type MySqlRelationType = "one-relation" | "many-relation";
+export type ManyRelation = "many-relation";
+export type OneRelation = "one-relation";
+export type MySqlRelationType = OneRelation | ManyRelation;
 /*
  * It will infer the relation looking at the schema. That means when the
  * table changes, the references has to belong to that particular table.

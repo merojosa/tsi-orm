@@ -1,4 +1,8 @@
-import { MySqlDataType, MySqlRelationType } from "../schema/adapter";
+import {
+  ManyRelation,
+  MySqlDataType,
+  MySqlRelationType,
+} from "../schema/adapter";
 
 export type Prettify<T> = {
   [K in keyof T]: T[K];
@@ -39,18 +43,26 @@ export type FilterBySelect<
   [TBaseKey in keyof TTable]: TBaseKey extends keyof TSelectColumns // The field exists in the select fields?
     ? TSelectColumns[TBaseKey] extends true // Is field selected?
       ? TTable[TBaseKey] extends {
+          // Is the field a MySqlDataType?
           type: MySqlDataType;
         }
         ? GetMySqlDataType<TTable[TBaseKey]>
         : never
-      : TSelectColumns[TBaseKey] extends object
-      ? TTable[TBaseKey] extends { type: MySqlRelationType; table: string } // Is the field is a relation?
+      : TSelectColumns[TBaseKey] extends object // If the field an object?
+      ? TTable[TBaseKey] extends { type: MySqlRelationType; table: string } // Is the field a relation?
         ? TTable[TBaseKey]["table"] extends keyof TSchema // Does it belong to the schema?
-          ? FilterBySelect<
-              TSchema,
-              TSchema[TTable[TBaseKey]["table"]], // This is the relation mapped to the schema
-              TSelectColumns[TBaseKey]
-            >
+          ? TTable[TBaseKey] extends { type: ManyRelation } // If the field is a many-relation, go array
+            ? FilterBySelect<
+                TSchema,
+                TSchema[TTable[TBaseKey]["table"]], // This is the relation mapped to the schema
+                TSelectColumns[TBaseKey]
+              >[]
+            : FilterBySelect<
+                // one-relation? Then go normally
+                TSchema,
+                TSchema[TTable[TBaseKey]["table"]], // This is the relation mapped to the schema
+                TSelectColumns[TBaseKey]
+              >
           : never
         : never
       : never
