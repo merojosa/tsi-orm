@@ -20,13 +20,21 @@ type MySqlOneRelation<
     }
   : never;
 
-export type MySqlColumnPrimitive = {
-  type: MySqlDataType;
-  length?: number;
-  primaryKey?: boolean;
-  defaultValue?: string;
-  unique?: boolean;
-};
+export type MySqlColumnPrimitive =
+  | {
+      type: Exclude<MySqlDataType, "varchar">;
+      length?: number;
+      primaryKey?: boolean;
+      defaultValue?: string;
+      unique?: boolean;
+    }
+  | {
+      type: Extract<MySqlDataType, "varchar">;
+      length: number;
+      primaryKey?: boolean;
+      defaultValue?: string;
+      unique?: boolean;
+    };
 
 export type MySqlColumnDefinition<
   TSchema extends Record<string, string>,
