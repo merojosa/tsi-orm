@@ -8,9 +8,9 @@ type OwnSchema = {
 const schema = {
   Author: {
     id: { type: "int", primaryKey: true },
-    name: { type: "varchar" },
+    name: { type: "varchar", length: 100 },
     birth: { type: "date" },
-    email: { type: "varchar" },
+    email: { type: "varchar", length: 50 },
     books: {
       type: "many-relation",
       table: "Book",
@@ -18,7 +18,7 @@ const schema = {
   },
   Book: {
     id: { type: "int", primaryKey: true },
-    name: { type: "varchar" },
+    name: { type: "varchar", length: 50 },
     authorId: { type: "int" },
     author: {
       type: "one-relation",
